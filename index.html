@@ -101,6 +101,25 @@
     if (!RE.test(v)){ document.getElementById('urlErr').textContent = 'ลิงก์ไม่ถูกต้อง ต้องเป็นลิงก์ script.google.com ที่ลงท้ายด้วย /exec'; return; }
     set(v); start();
   };
+  // iPhone แบบเปิดจากไอคอน: iOS คิดความสูงจอสั้นกว่าจริง (หักแถบสถานะด้านบนไปอีกรอบ) -> คำนวณจากขนาดจอเอง
+  var probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;visibility:hidden;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)';
+  document.body.appendChild(probe);
+  function fit(){
+    var w = document.getElementById('wrap'), cs = getComputedStyle(probe);
+    var top = parseFloat(cs.paddingTop) || 0, bot = parseFloat(cs.paddingBottom) || 0;
+    var land = window.matchMedia && matchMedia('(orientation: landscape)').matches;
+    var sw = land ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
+    var sh = land ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
+    var H = window.innerHeight;
+    // ใช้ขนาดจอจริงเฉพาะตอนแอปเต็มจอ (ไม่ใช่ iPad แบ่งจอ)
+    if (navigator.standalone && Math.abs(window.innerWidth - sw) < 3) H = Math.max(H, sh);
+    var gap = Math.max(0, bot - 22); // เว้นใต้แถบเมนูนิดเดียวให้พ้นขีด Home
+    w.style.top = top + 'px'; w.style.bottom = 'auto'; w.style.height = (H - top - gap) + 'px';
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', function(){ setTimeout(fit, 300); });
   start();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
 </script>
