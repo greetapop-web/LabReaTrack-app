@@ -15,7 +15,10 @@
 <style>
   :root{--ink:#14202E;--soft:#52606D;--line:#E7ECF1;--top:env(safe-area-inset-top,0px);--bot:env(safe-area-inset-bottom,0px);}
   *{box-sizing:border-box}
-  html,body{margin:0;height:100%;min-height:100dvh;font-family:'Noto Sans Thai',system-ui,-apple-system,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
+  /* หน้าแม่ห้ามเลื่อนเด็ดขาด (ไม่งั้น iPhone จะเลื่อนทั้งกรอบตามนิ้ว ทำให้แถบเมนูตกขอบจอ) */
+  html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;}
+  body{position:fixed;inset:0;}
+  html,body{font-family:'Noto Sans Thai',system-ui,-apple-system,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
   body{background:linear-gradient(180deg,#1F6FB2 0,#1F6FB2 60px,#fff 60px);overflow:hidden;}
   /* หน้าเว็บ LabReaTrack เต็มจอ (ไม่มีแถบของ Safari) */
   /* ล่างสุด: เว้นแค่พอให้แถบเมนูไม่ทับขีด Home ของ iPhone (พื้นขาวต่อกับแถบเมนูเป็นสีเดียวกัน) */
@@ -116,7 +119,13 @@
     if (navigator.standalone && Math.abs(window.innerWidth - sw) < 3) H = Math.max(H, sh);
     var gap = Math.max(0, bot - 22); // เว้นใต้แถบเมนูนิดเดียวให้พ้นขีด Home
     w.style.top = top + 'px'; w.style.bottom = 'auto'; w.style.height = (H - top - gap) + 'px';
+    if (dbg) dbg.textContent = 'inner ' + window.innerWidth + 'x' + window.innerHeight + ' | screen ' + screen.width + 'x' + screen.height + ' | top ' + top + ' bot ' + bot + ' | standalone ' + !!navigator.standalone + ' | frame ' + Math.round(w.getBoundingClientRect().top) + '-' + Math.round(w.getBoundingClientRect().bottom) + ' | scroll ' + (document.scrollingElement ? document.scrollingElement.scrollTop : 0);
   }
+  // เปิดด้วย #debug ต่อท้าย = โชว์ตัวเลขขนาดจอ ไว้ส่งให้ช่วยปรับ
+  var dbg = null;
+  if (/debug/.test(location.hash)){ dbg = document.createElement('div'); dbg.style.cssText = 'position:fixed;left:8px;right:8px;top:50%;z-index:99;background:rgba(0,0,0,.8);color:#fff;font:12px/1.5 monospace;padding:8px;border-radius:8px;pointer-events:none'; document.body.appendChild(dbg); setInterval(fit, 1000); }
+  // กันหน้าแม่เลื่อน (ถ้า iOS เลื่อนไปแล้ว ดึงกลับ)
+  window.addEventListener('scroll', function(){ if (window.scrollY) window.scrollTo(0, 0); });
   fit();
   window.addEventListener('resize', fit);
   window.addEventListener('orientationchange', function(){ setTimeout(fit, 300); });
