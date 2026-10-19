@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="LabReaTrack">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
@@ -114,9 +114,8 @@
     var land = window.matchMedia && matchMedia('(orientation: landscape)').matches;
     var sw = land ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
     var sh = land ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height);
+    // iOS 26: พื้นที่ที่แอปวาดได้จริง = innerHeight เท่านั้น (เกินนี้จะตกขอบ)
     var H = window.innerHeight;
-    // ใช้ขนาดจอจริงเฉพาะตอนแอปเต็มจอ (ไม่ใช่ iPad แบ่งจอ)
-    if (navigator.standalone && Math.abs(window.innerWidth - sw) < 3) H = Math.max(H, sh);
     var gap = Math.max(0, bot - 22); // เว้นใต้แถบเมนูนิดเดียวให้พ้นขีด Home
     w.style.top = top + 'px'; w.style.bottom = 'auto'; w.style.height = (H - top - gap) + 'px';
     if (dbg){ var vv = window.visualViewport || {}, r = w.getBoundingClientRect();
@@ -125,7 +124,7 @@
   // เปิดด้วย #debug ต่อท้าย = โชว์ตัวเลขขนาดจอ ไว้ส่งให้ช่วยปรับ
   var dbg = null;
   // ชั่วคราว: แอปไอคอนโชว์ตัวเลขวัดจอ 25 วินาทีหลังเปิด (ไว้หาสาเหตุแถบเมนูล่าง)
-  if (/debug/.test(location.hash) || navigator.standalone){ dbg = document.createElement('div'); dbg.style.cssText = 'position:fixed;left:8px;right:8px;top:45%;z-index:99;background:rgba(0,0,0,.8);color:#fff;font:12px/1.5 monospace;padding:8px;border-radius:8px;pointer-events:none'; document.body.appendChild(dbg); var dbgT = setInterval(fit, 500); if (window.visualViewport){ visualViewport.addEventListener('scroll', fit); visualViewport.addEventListener('resize', fit); } if (!/debug/.test(location.hash)) setTimeout(function(){ clearInterval(dbgT); dbg.remove(); dbg = null; }, 25000); }
+  if (/debug/.test(location.hash)){ dbg = document.createElement('div'); dbg.style.cssText = 'position:fixed;left:8px;right:8px;top:45%;z-index:99;background:rgba(0,0,0,.8);color:#fff;font:12px/1.5 monospace;padding:8px;border-radius:8px;pointer-events:none'; document.body.appendChild(dbg); var dbgT = setInterval(fit, 500); if (window.visualViewport){ visualViewport.addEventListener('scroll', fit); visualViewport.addEventListener('resize', fit); } if (!/debug/.test(location.hash)) setTimeout(function(){ clearInterval(dbgT); dbg.remove(); dbg = null; }, 25000); }
   // กันหน้าแม่เลื่อน (ถ้า iOS เลื่อนไปแล้ว ดึงกลับ)
   window.addEventListener('scroll', function(){ if (window.scrollY) window.scrollTo(0, 0); });
   fit();
