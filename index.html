@@ -15,10 +15,11 @@
 <style>
   :root{--ink:#14202E;--soft:#52606D;--line:#E7ECF1;--top:env(safe-area-inset-top,0px);--bot:env(safe-area-inset-bottom,0px);}
   *{box-sizing:border-box}
-  html,body{margin:0;height:100%;font-family:'Noto Sans Thai',system-ui,-apple-system,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
+  html,body{margin:0;height:100%;min-height:100dvh;font-family:'Noto Sans Thai',system-ui,-apple-system,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
   body{background:linear-gradient(180deg,#1F6FB2 0,#1F6FB2 60px,#fff 60px);overflow:hidden;}
   /* หน้าเว็บ LabReaTrack เต็มจอ (ไม่มีแถบของ Safari) */
-  #app{position:fixed;left:0;right:0;top:var(--top);bottom:var(--bot);width:100%;height:calc(100% - var(--top) - var(--bot));border:0;background:#F4F6F8;display:none;}
+  /* ล่างสุด: เว้นแค่พอให้แถบเมนูไม่ทับขีด Home ของ iPhone (พื้นขาวต่อกับแถบเมนูเป็นสีเดียวกัน) */
+  #app{position:fixed;left:0;right:0;top:var(--top);bottom:max(0px, calc(var(--bot) - 16px));width:100%;border:0;background:#F4F6F8;display:none;}
   body.run #app{display:block;}
   /* หน้าจอระหว่างโหลด */
   #splash{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:linear-gradient(135deg,#1F6FB2,#13A89E);color:#fff;z-index:5;transition:opacity .3s;}
