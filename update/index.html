@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LRT อัปเดต</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0D3B66">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LRT อัปเดต">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<style>
+  :root{--ink:#14202E;--soft:#52606D;--line:#E7ECF1;--top:env(safe-area-inset-top,0px);--bot:env(safe-area-inset-bottom,0px);}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;font-family:'Noto Sans Thai',system-ui,-apple-system,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;}
+  body{position:fixed;inset:0;background:#F4F6F8;}
+  #wrap{position:fixed;left:0;right:0;top:var(--top);bottom:var(--bot);background:#F4F6F8;display:none;}
+  body.run #wrap{display:block;}
+  #app{display:block;width:100%;height:100%;border:0;background:#F4F6F8;}
+  #splash{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:linear-gradient(135deg,#0D3B66,#1F6FB2 60%,#F97316);color:#fff;z-index:5;transition:opacity .3s;}
+  body.run #splash{display:flex;}
+  body.loaded #splash{opacity:0;pointer-events:none;}
+  #splash img{width:96px;height:96px;border-radius:22px;box-shadow:0 8px 24px rgba(0,0,0,.25);}
+  #splash b{font-size:22px;font-weight:800;}
+  .spin{width:26px;height:26px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite;}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  #slow{display:none;font-size:13px;text-align:center;line-height:1.6;max-width:280px;}
+  #slow a{color:#fff;font-weight:800;}
+  #setup{display:none;position:fixed;inset:0;overflow:auto;background:#F4F6F8;padding:calc(24px + var(--top)) 16px calc(24px + var(--bot));}
+  body.setup #setup{display:block;}
+  .card{max-width:520px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 6px 18px rgba(15,27,42,.08);}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .brand img{width:52px;height:52px;border-radius:13px;}
+  .brand h1{margin:0;font-size:21px;font-weight:800;}
+  .brand p{margin:0;font-size:12.5px;color:var(--soft);}
+  .card p{font-size:13.5px;color:var(--soft);line-height:1.6;margin:8px 0 12px;}
+  code{background:#EEF2F6;border-radius:6px;padding:1px 6px;}
+  input{width:100%;font:inherit;font-size:15px;padding:12px;border:1px solid #DCE3EA;border-radius:12px;}
+  button{width:100%;margin-top:12px;border:none;border-radius:12px;padding:13px;font:inherit;font-weight:800;color:#fff;background:linear-gradient(135deg,#0D3B66,#1F6FB2);}
+  .err{color:#C5384A;font-size:12.5px;margin-top:6px;min-height:1em;}
+  .tip{font-size:12px !important;}
+</style>
+</head>
+<body>
+<div id="wrap"><iframe id="app" title="LabReaTrack อัปเดตระบบ"></iframe></div>
+<div id="splash"><img src="apple-touch-icon.png" alt=""><b>อัปเดตระบบ</b><div class="spin"></div>
+  <div id="slow">ใช้เวลานานกว่าปกติ… ถ้าหน้าไม่ขึ้น <a href="#" id="openDirect">เปิดแบบเดิม</a></div></div>
+<div id="setup"><div class="card">
+  <div class="brand"><img src="apple-touch-icon.png" alt=""><div><h1>LRT อัปเดต</h1><p>สำหรับแอดมินเท่านั้น</p></div></div>
+  <b>ตั้งค่าครั้งแรก</b>
+  <p>วางลิงก์เว็บแอป LabReaTrack (ลงท้ายด้วย <code>/exec</code>) ระบบจะเปิดหน้าอัปเดตระบบให้เอง</p>
+  <input id="urlIn" type="url" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/…/exec">
+  <div class="err" id="urlErr"></div>
+  <button type="button" id="saveBtn">บันทึกลิงก์ แล้วเปิดหน้าอัปเดต</button>
+  <p class="tip">ลิงก์เก็บไว้ในเครื่องนี้เท่านั้น ไม่ได้อยู่ในหน้านี้ · ยังต้องใส่รหัสแอดมินทุกครั้งที่เข้า · เปลี่ยนลิงก์ภายหลัง เปิดหน้านี้แล้วเติม <code>#setup</code> ต่อท้าย</p>
+</div></div>
+<script>
+  var KEY = 'lrt_upd_url';
+  var RE = /^https:\/\/script\.google\.com\/(a\/macros\/[^\/]+|macros)\/s\/([A-Za-z0-9_-]{20,})\/exec$/;
+  function get(){ try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
+  function set(v){ try { v ? localStorage.setItem(KEY, v) : localStorage.removeItem(KEY); } catch (e) {} }
+  var b = document.body, frame = document.getElementById('app'), slowTimer = null;
+  (function(){
+    var m = location.hash.match(/app=([A-Za-z0-9_-]{20,})/);
+    if (m){ set('https://script.google.com/macros/s/' + m[1] + '/exec'); history.replaceState(null, '', location.pathname); }
+    if (/setup/.test(location.hash)){ set(''); history.replaceState(null, '', location.pathname); }
+  })();
+  function load(u){
+    var full = u + '?view=update';
+    b.classList.remove('loaded'); document.getElementById('slow').style.display = 'none';
+    clearTimeout(slowTimer); slowTimer = setTimeout(function(){ document.getElementById('slow').style.display = 'block'; }, 12000);
+    document.getElementById('openDirect').href = full;
+    frame.src = full;
+  }
+  frame.addEventListener('load', function(){ if (frame.src){ clearTimeout(slowTimer); b.classList.add('loaded'); } });
+  function start(){
+    var u = get();
+    if (!RE.test(u)){ b.className = 'setup'; return; }
+    b.className = 'run'; load(u);
+  }
+  document.getElementById('saveBtn').onclick = function(){
+    var v = document.getElementById('urlIn').value.trim().replace(/[?#].*$/, '').replace(/\/dev$/, '/exec');
+    if (!RE.test(v)){ document.getElementById('urlErr').textContent = 'ลิงก์ไม่ถูกต้อง ต้องเป็นลิงก์ script.google.com ที่ลงท้ายด้วย /exec'; return; }
+    set(v); start();
+  };
+  // iPhone เปิดจากไอคอน: ใช้ความสูง innerHeight จริง (แบบเดียวกับไอคอน LabReaTrack หลัก)
+  var probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;visibility:hidden;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)';
+  document.body.appendChild(probe);
+  function fit(){
+    var w = document.getElementById('wrap'), cs = getComputedStyle(probe);
+    var top = parseFloat(cs.paddingTop) || 0, bot = parseFloat(cs.paddingBottom) || 0;
+    var gap = Math.max(0, bot - 22);
+    w.style.top = top + 'px'; w.style.bottom = 'auto'; w.style.height = (window.innerHeight - top - gap) + 'px';
+  }
+  window.addEventListener('scroll', function(){ if (window.scrollY) window.scrollTo(0, 0); });
+  fit();
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', function(){ setTimeout(fit, 300); });
+  start();
+</script>
+</body>
+</html>
