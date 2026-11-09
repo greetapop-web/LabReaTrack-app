@@ -126,13 +126,9 @@
   // ชั่วคราว: แอปไอคอนโชว์ตัวเลขวัดจอ 25 วินาทีหลังเปิด (ไว้หาสาเหตุแถบเมนูล่าง)
   if (/debug/.test(location.hash)){ dbg = document.createElement('div'); dbg.style.cssText = 'position:fixed;left:8px;right:8px;top:45%;z-index:99;background:rgba(0,0,0,.8);color:#fff;font:12px/1.5 monospace;padding:8px;border-radius:8px;pointer-events:none'; document.body.appendChild(dbg); var dbgT = setInterval(fit, 500); if (window.visualViewport){ visualViewport.addEventListener('scroll', fit); visualViewport.addEventListener('resize', fit); } if (!/debug/.test(location.hash)) setTimeout(function(){ clearInterval(dbgT); dbg.remove(); dbg = null; }, 25000); }
   // กันหน้าแม่เลื่อน (ถ้า iOS เลื่อนไปแล้ว ดึงกลับ)
-  // แป้นพิมพ์เปิดอยู่ (ส่วนที่มองเห็นหดลง) -> ไม่ดึงหน้ากลับ/ไม่คำนวณกรอบใหม่ ปล่อยให้ iOS เลื่อนหาช่องที่พิมพ์เอง
-  //   (ถ้าดึงกลับระหว่างแป้นพิมพ์เปิด iPhone จะแตะช่องถัดไปไม่โดน ต้องกด ✓ ก่อน)
-  function kbOpen(){ var vv = window.visualViewport; return !!(vv && vv.height < window.innerHeight - 120); }
-  window.addEventListener('scroll', function(){ if (window.scrollY && !kbOpen()) window.scrollTo(0, 0); });
-  if (window.visualViewport) visualViewport.addEventListener('resize', function(){ if (!kbOpen()){ if (window.scrollY) window.scrollTo(0, 0); fit(); } });
+  window.addEventListener('scroll', function(){ if (window.scrollY) window.scrollTo(0, 0); });
   fit();
-  window.addEventListener('resize', function(){ if (!kbOpen()) fit(); });
+  window.addEventListener('resize', fit);
   window.addEventListener('orientationchange', function(){ setTimeout(fit, 300); });
   start();
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
