@@ -88,6 +88,11 @@
   // หน้า LabReaTrack ในกรอบขอเปลี่ยนหน้า (กดเมนู/ลิงก์) -> โหลดในกรอบเดิม เฉพาะลิงก์ของเว็บแอปตัวเดียวกันเท่านั้น
   window.addEventListener('message', function(e){
     var d = e.data || {}, base = get();
+    // หลังอัปเดตเวอร์ชันใหม่ กรอบของ Google บางครั้งค้างเป็นกล่องเล็ก -> หน้าในกรอบแจ้งมา โหลดกรอบใหม่ 1 ครั้ง (กันวน: ไม่เกิน 1 ครั้งต่อ 60 วินาที)
+    if (d.lrtReframe && base && /(\.googleusercontent\.com|script\.google\.com)$/.test(String(e.origin || '').replace(/^https:\/\//, ''))){
+      var now = Date.now(); if (now - (window.__lrtReframeAt || 0) > 60000 && frame.src){ window.__lrtReframeAt = now; var cur = frame.src; frame.src = 'about:blank'; setTimeout(function(){ frame.src = cur; }, 50); }
+      return;
+    }
     if (!d.lrtNav || !base) return;
     if (!/(\.googleusercontent\.com|script\.google\.com)$/.test(String(e.origin || '').replace(/^https:\/\//, ''))) return;
     var u = String(d.lrtNav).replace(/([?&])shell=1(&|$)/, '$1').replace(/[?&]$/, '');
